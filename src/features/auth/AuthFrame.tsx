@@ -2,5 +2,26 @@ import { ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
 export default function AuthFrame({ children, title, subtitle, mode }: { children: ReactNode; title: string; subtitle: string; mode: 'login' | 'register' }) {
- return <div className="auth-page"><div className="auth-side"><Link to="/" className="brand"><span className="brand-mark">r</span> remitly<span className="brand-dot">.</span></Link><div className="auth-side-content"><span className="eyebrow">MONEY MOVES. YOU STAY IN CONTROL.</span><h2>More connection.<br/><span>Less complication.</span></h2><p>Keep your international transfers organised, with clear steps and updates you can follow.</p><div className="auth-side-note"><ShieldCheck size={18}/><span>Your account, recipients and transfer requests in one place.</span></div></div><div className="auth-side-footer">© 2026 Remitly platform starter</div><div className="auth-art-circle circle-one"/><div className="auth-art-circle circle-two"/></div><div className="auth-main"><Link to="/" className="back-home"><ArrowLeft size={15}/> Back to home</Link><div className="auth-card"><div className="auth-mobile-brand"><Link to="/" className="brand"><span className="brand-mark">r</span> remitly<span className="brand-dot">.</span></Link></div><div className="auth-heading"><span className="eyebrow">{mode === 'login' ? 'WELCOME BACK' : 'YOUR JOURNEY STARTS HERE'}</span><h1>{title}</h1><p>{subtitle}</p></div>{children}<div className="auth-switch">{mode === 'login' ? <>New to Remitly? <Link to="/register">Create an account <ArrowRight size={14}/></Link></> : <>Already have an account? <Link to="/login">Log in <ArrowRight size={14}/></Link></>}</div><div className="auth-legal">By continuing, you agree to our <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</div></div><div className="auth-footer">Need help? <a href="mailto:support@example.com">Contact support</a></div></div></div>
+    return <div className="auth-page"><div className="auth-side">
+        <Link to="/" className="brand">
+            <span className="brand-mark">r</span> EverestRemittance<span className="brand-dot">.
+            </span></Link><div className="auth-side-content">
+            <span className="eyebrow">MONEY MOVES. YOU STAY IN CONTROL.</span>
+            <h2>More connection.<br /><span>Less complication.</span></h2>
+            <p>Keep your international transfers organised, with clear steps and updates you can follow.</p>
+            <div className="auth-side-note"><ShieldCheck size={18} />
+                <span>Your account, recipients and transfer requests in one place.</span></div></div>
+        <div className="auth-side-footer">© 2026 EverestRemittance platform starter</div><div className="auth-art-circle circle-one" />
+        <div className="auth-art-circle circle-two" /></div><div className="auth-main"><Link to="/" className="back-home">
+            <ArrowLeft size={15} /> Back to home</Link><div className="auth-card">
+                <div className="auth-mobile-brand"><Link to="/" className="brand">
+                    <span className="brand-mark">r</span> EverestRemittance<span className="brand-dot">.</span>
+                </Link></div><div className="auth-heading">
+                    <span className="eyebrow">{mode === 'login' ? 'WELCOME BACK' : 'YOUR JOURNEY STARTS HERE'}</span>
+                    <h1>{title}</h1><p>{subtitle}</p></div>{children}
+                <div className="auth-switch">{mode === 'login' ? <>New to EverestRemittance? <Link to="/register">Create an account <ArrowRight size={14} />
+                </Link></> : <>Already have an account? <Link to="/login">Log in <ArrowRight size={14} /></Link></>}</div>
+                <div className="auth-legal">By continuing, you agree to our <a href="#terms">Terms</a> and
+                    <a href="#privacy">Privacy Policy</a>.</div></div><div className="auth-footer">Need help?
+                <a href="mailto:support@example.com">Contact support</a></div></div></div>
 }
