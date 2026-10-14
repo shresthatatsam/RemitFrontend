@@ -1,18 +1,13 @@
-// import type { Status } from '../../types';
-// export default function StatusBadge({ status }: { status: Status | 'Not submitted' }) { const cls = status.toLowerCase().replace(/\s+/g, '-'); return <span className={`status-badge status-${cls}`}><i/>{status}</span>; }
-import type { ReactNode } from 'react';
+import type { Status as AppStatus } from '../../types';
 
 export type Status =
-    | 'Pending'
+    | AppStatus
     | 'Active'
-    | 'Completed'
     | 'Not submitted'
-    | 'In review'
-    | 'Approved'
-    | 'Rejected'
     | 'Checking...'
     | 'UnderReview'
     | 'Under Review'
+    | 'Approved'
     | 'Failed'
     | 'Success'
     | 'Processing'
@@ -26,11 +21,12 @@ interface StatusBadgeProps {
 const STATUS_STYLES: Record<Status, string> = {
     Pending: 'status-pending',
     Active: 'status-active',
-    Completed: 'status-completed',
+    Completed: 'status-approved',
     'Not submitted': 'status-not-submitted',
     'In review': 'status-in-review',
     Approved: 'status-approved',
     Rejected: 'status-rejected',
+    'Action required': 'status-rejected',
     'Checking...': 'status-checking',
     UnderReview: 'status-in-review',
     'Under Review': 'status-in-review',
