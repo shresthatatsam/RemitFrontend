@@ -477,7 +477,7 @@ import {
 import PageHeader from '../../components/ui/PageHeader';
 import type { Beneficiary } from '../../types';
 
-const API_URL = 'https://localhost:7001/api/beneficiaries';
+const API_URL = 'https://localhost:53273/api/beneficiaries';
 
 interface ApiBeneficiary {
     id: string;
@@ -492,12 +492,13 @@ interface ApiBeneficiary {
 }
 
 interface CreateBeneficiaryRequest {
-    accountHolderName: string;
+    accountName: string;
     accountNumber: string;
     bankName: string;
     bankCountry: string;
     bankCode: string;
     branchName: string;
+    currency: string;
 }
 
 interface BeneficiaryForm {
@@ -653,12 +654,13 @@ export default function BeneficiariesPage() {
         setSuccess('');
 
         const payload: CreateBeneficiaryRequest = {
-            accountHolderName: form.name.trim(),
+            accountName: form.name.trim(),
             accountNumber: form.account.trim(),
             bankName: form.bank.trim(),
             bankCountry: form.country,
             bankCode: '',
             branchName: '',
+            currency: form.country === 'Nepal' ? 'NPR' : 'USD',
         };
 
         try {
@@ -798,8 +800,7 @@ export default function BeneficiariesPage() {
                                 <span
                                     className={`beneficiary-avatar bcolor-${i % 3}`}
                                 >
-                                    {b.accountName
-                                        .trim()
+                                    {(b.accountName || '').trim()
                                         .split(/\s+/)
                                         .map(part => part[0])
                                         .join('')

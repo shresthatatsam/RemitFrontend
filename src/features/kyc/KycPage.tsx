@@ -3,13 +3,12 @@ import {
     CheckCircle2,
     FileCheck2,
     ShieldCheck,
-    UploadCloud,
 } from 'lucide-react';
 
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
 
-const KYC_API_URL = 'https://localhost:7001/api/kyc';
+const KYC_API_URL = 'https://localhost:53273/api/kyc';
 const KYC_ME_URL = `${KYC_API_URL}/me`;
 const TOKEN_KEY = 'remitly_token';
 
@@ -24,14 +23,18 @@ type KycStatus =
 interface KycResponse {
     id?: string;
     userId?: string;
-    legalName?: string;
+    fullName?: string;
     dateOfBirth?: string;
-    countryOfResidence?: string;
+    nationality?: string;
     documentType?: string;
-    documentReference?: string;
+    documentNumber?: string;
+    documentFrontUrl?: string | null;
+    documentBackUrl?: string | null;
+    selfieUrl?: string | null;
+    address?: string | null;
     status?: number | string;
-    reviewNotes?: string | null;
-    reviewedAt?: string | null;
+    adminNote?: string | null;
+    reviewedAtUtc?: string | null;
 }
 
 const STATUS_MAP: Record<number, KycStatus> = {
@@ -39,6 +42,7 @@ const STATUS_MAP: Record<number, KycStatus> = {
     1: 'In review', // UnderReview
     2: 'Approved',
     3: 'Rejected',
+    4: 'Rejected', // ActionRequired
 };
 
 function getKycStatus(status: number | string | undefined): KycStatus {
@@ -52,19 +56,22 @@ function getKycStatus(status: number | string | undefined): KycStatus {
         switch (normalized) {
             case '0':
             case 'pending':
+            case '1':
             case 'underreview':
             case 'under review':
             case 'inreview':
             case 'in review':
                 return 'In review';
 
-            case '1':
             case '2':
             case 'approved':
                 return 'Approved';
 
             case '3':
             case 'rejected':
+            case '4':
+            case 'actionrequired':
+            case 'action required':
                 return 'Rejected';
 
             default:
@@ -90,7 +97,9 @@ export default function KycPage() {
     const [documentType, setDocumentType] = useState('Passport');
     const [documentNumber, setDocumentNumber] = useState('');
     const [address, setAddress] = useState('');
-    const [fileName, setFileName] = useState('');
+    const [documentFrontUrl, setDocumentFrontUrl] = useState('');
+    const [documentBackUrl, setDocumentBackUrl] = useState('');
+    const [selfieUrl, setSelfieUrl] = useState('');
 
     // Load the current user's KYC record.
     useEffect(() => {
@@ -137,14 +146,18 @@ export default function KycPage() {
 
                 setKycStatus(status);
                 setSubmitted(true);
-                setReviewNotes(data.reviewNotes ?? '');
+                setReviewNotes(data.adminNote ?? '');
 
                 // Populate existing KYC fields.
-                setName(data.legalName ?? '');
+                setName(data.fullName ?? '');
                 setDob(data.dateOfBirth?.slice(0, 10) ?? '');
-                setNationality(data.countryOfResidence ?? 'Nepal');
+                setNationality(data.nationality ?? 'Nepal');
                 setDocumentType(data.documentType ?? 'Passport');
-                setDocumentNumber(data.documentReference ?? '');
+                setDocumentNumber(data.documentNumber ?? '');
+                setAddress(data.address ?? '');
+                setDocumentFrontUrl(data.documentFrontUrl ?? '');
+                setDocumentBackUrl(data.documentBackUrl ?? '');
+                setSelfieUrl(data.selfieUrl ?? '');
             } catch (err) {
                 if (err instanceof Error && err.name === 'AbortError') {
                     return;
@@ -183,11 +196,15 @@ export default function KycPage() {
             }
 
             const payload = {
-                legalName: name.trim(),
+                fullName: name.trim(),
                 dateOfBirth: dob,
-                countryOfResidence: nationality,
+                nationality: nationality.trim(),
                 documentType,
-                documentReference: documentNumber.trim(),
+                documentNumber: documentNumber.trim(),
+                documentFrontUrl: documentFrontUrl.trim() || null,
+                documentBackUrl: documentBackUrl.trim() || null,
+                selfieUrl: selfieUrl.trim() || null,
+                address: address.trim() || null,
             };
 
             const response = await fetch(KYC_API_URL, {
@@ -211,7 +228,7 @@ export default function KycPage() {
             setSubmitted(true);
             setKycStatus('In review');
             setReviewNotes('');
-            setFileName('');
+            
         } catch (err) {
             setError(
                 err instanceof Error
@@ -265,6 +282,36 @@ export default function KycPage() {
                     </div>
 
                     <div className="kyc-status-copy">
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                flexWrap: 'wrap',
+                                marginBottom: '8px',
+                            }}
+                        >
+                            <span style={{ fontSize: '0.85rem', opacity: 0.75 }}>
+                                Current KYC status:
+                            </span>
+                            <strong
+                                aria-live="polite"
+                                style={{
+                                    fontWeight: 700,
+                                    color: checkingStatus
+                                        ? 'inherit'
+                                        : kycStatus === 'Approved'
+                                          ? '#15803d'
+                                          : kycStatus === 'In review'
+                                            ? '#b45309'
+                                            : kycStatus === 'Rejected'
+                                              ? '#b91c1c'
+                                              : 'inherit',
+                                }}
+                            >
+                                {checkingStatus ? 'Checking...' : kycStatus}
+                            </strong>
+                        </div>
                         <strong>
                             {checkingStatus
                                 ? 'Checking your verification status...'
@@ -452,41 +499,41 @@ export default function KycPage() {
                         </div>
 
                         <div className="field-group full">
-                            <label htmlFor="idUpload">
-                                Identity document upload
-                            </label>
-
-                            <label
-                                className={`upload-zone ${
-                                    fileName ? 'file-selected' : ''
-                                }`}
-                                htmlFor="idUpload"
-                            >
-                                <UploadCloud size={25} />
-
-                                <strong>
-                                    {fileName ||
-                                        'Upload a photo or scan of your ID'}
-                                </strong>
-
-                                <span>
-                                    PNG, JPG or PDF · File selection only;
-                                    upload is not connected
-                                </span>
-
-                                <input
-                                    id="idUpload"
-                                    type="file"
-                                    accept="image/*,.pdf"
-                                    onChange={e =>
-                                        setFileName(
-                                            e.target.files?.[0]?.name ?? ''
-                                        )
-                                    }
-                                    disabled={isLocked}
-                                />
-                            </label>
+                            <label htmlFor="documentFrontUrl">Front of identity document URL</label>
+                            <input
+                                id="documentFrontUrl"
+                                type="url"
+                                value={documentFrontUrl}
+                                onChange={e => setDocumentFrontUrl(e.target.value)}
+                                placeholder="Private storage URL for the front of your ID"
+                                disabled={isLocked}
+                            />
                         </div>
+
+                        <div className="field-group full">
+                            <label htmlFor="documentBackUrl">Back of identity document URL</label>
+                            <input
+                                id="documentBackUrl"
+                                type="url"
+                                value={documentBackUrl}
+                                onChange={e => setDocumentBackUrl(e.target.value)}
+                                placeholder="Private storage URL for the back of your ID"
+                                disabled={isLocked}
+                            />
+                        </div>
+
+                        <div className="field-group full">
+                            <label htmlFor="selfieUrl">Selfie URL</label>
+                            <input
+                                id="selfieUrl"
+                                type="url"
+                                value={selfieUrl}
+                                onChange={e => setSelfieUrl(e.target.value)}
+                                placeholder="Private storage URL for your selfie"
+                                disabled={isLocked}
+                            />
+                        </div>
+
                     </div>
 
                     <div className="form-footer">
