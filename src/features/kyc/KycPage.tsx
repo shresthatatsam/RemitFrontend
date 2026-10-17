@@ -8,7 +8,7 @@ import {
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
 
-const KYC_API_URL = 'https://localhost:53273/api/kyc';
+const KYC_API_URL = import.meta.env.VITE_API_URL || 'https://localhost:53273/api/kyc';
 const KYC_ME_URL = `${KYC_API_URL}/me`;
 type KycStatus = 'Not submitted' | 'In review' | 'Approved' | 'Rejected';
 
