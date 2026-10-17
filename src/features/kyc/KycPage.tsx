@@ -130,7 +130,7 @@ export default function KycPage() {
     }, []);
 
     const isLocked = submitted || checkingStatus || loading || kycStatus === 'Approved' || kycStatus === 'Rejected';
-    const reviewActive = ['In review', 'Approved', 'Rejected'].includes(kycStatus);
+    // const reviewActive = ['In review', 'Approved', 'Rejected'].includes(kycStatus);
 
     const statusTitle: Record<KycStatus, string> = {
         'Not submitted': 'Verify your identity',
